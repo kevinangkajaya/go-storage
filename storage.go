@@ -1,6 +1,7 @@
 package gostorage
 
 import (
+	"fmt"
 	"io"
 	"time"
 )
@@ -12,6 +13,23 @@ const (
 	ObjectPublicReadWrite ObjectVisibility = "public-read-write"
 	ObjectPublicRead      ObjectVisibility = "public-read"
 )
+
+type StorageResize struct {
+	MaxHeight *int `json:"max_height"` // in px
+}
+
+func (s *StorageResize) ConvertForOss() string {
+	result := ""
+	if s != nil {
+		resizeAction := "lfit"
+		result = fmt.Sprintf("image/resize,m_%s", resizeAction)
+		if s.MaxHeight != nil {
+			result += fmt.Sprintf(",h_%d", *s.MaxHeight)
+		}
+	}
+
+	return result
+}
 
 // Storage is an abstraction for persistence storage mechanism,
 // remember that all object path used here should be specified
@@ -27,10 +45,10 @@ type Storage interface {
 	Delete(objectPaths ...string) error
 
 	// URL return object url
-	URL(objectPath string) (string, error)
+	URL(objectPath string, storageResize *StorageResize) (string, error)
 
 	// TemporaryURL give temporary access to an object using returned signed url
-	TemporaryURL(objectPath string, expireIn time.Duration) (string, error)
+	TemporaryURL(objectPath string, expireIn time.Duration, storageResize *StorageResize) (string, error)
 
 	// Copy source to destination
 	Copy(srcObjectPath string, dstObjectPath string) error

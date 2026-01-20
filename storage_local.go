@@ -122,7 +122,7 @@ func (s *storageLocalFile) Copy(srcObjectPath string, dstObjectPath string) erro
 	return err
 }
 
-func (s *storageLocalFile) URL(objectPath string) (string, error) {
+func (s *storageLocalFile) URL(objectPath string, storageResize *StorageResize) (string, error) {
 	if objectPath == "" {
 		return "", nil
 	}
@@ -140,7 +140,7 @@ func (s *storageLocalFile) URL(objectPath string) (string, error) {
 	return u.String(), nil
 }
 
-func (s *storageLocalFile) TemporaryURL(objectPath string, expireIn time.Duration) (string, error) {
+func (s *storageLocalFile) TemporaryURL(objectPath string, expireIn time.Duration, storageResize *StorageResize) (string, error) {
 	if objectPath == "" {
 		return "", nil
 	}
@@ -150,7 +150,7 @@ func (s *storageLocalFile) TemporaryURL(objectPath string, expireIn time.Duratio
 		return s.signedURLBuilder(filePath, objectPath, expireIn)
 	}
 
-	publicURL, err := s.URL(objectPath)
+	publicURL, err := s.URL(objectPath, storageResize)
 	if err != nil {
 		return "", fmt.Errorf("[local-storage] err file not found in given public/private path")
 	}

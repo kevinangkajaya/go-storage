@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"net/url"
 	"path"
 	"path/filepath"
 	"strconv"
@@ -83,22 +84,36 @@ func (s *storageAlibabaOSS) Copy(srcObjectPath string, dstObjectPath string) err
 	return err
 }
 
-func (s *storageAlibabaOSS) URL(objectPath string) (string, error) {
+func (s *storageAlibabaOSS) URL(objectPath string, storageResize *StorageResize) (string, error) {
 	if objectPath == "" {
 		return "", nil
 	}
 	objectPath = cleanOSSObjectPath(objectPath)
 	endpoint := removeSchemeFromEndpoint(s.bucket.GetConfig().Endpoint)
-	return fmt.Sprintf("https://%s.%s/%s", s.bucket.BucketName, endpoint, objectPath), nil
+
+	rawQuery := ""
+	if storageResize != nil {
+		storageResizeQuery := storageResize.ConvertForOss()
+		rawQuery = fmt.Sprintf("x-oss-process=%s", storageResizeQuery)
+	}
+
+	u := url.URL{
+		Scheme:   "https",
+		Path:     path.Join(fmt.Sprintf("%s.%s", s.bucket.BucketName, endpoint), objectPath),
+		RawQuery: rawQuery,
+	}
+
+	return u.String(), nil
 }
 
-func (s *storageAlibabaOSS) TemporaryURL(objectPath string, expireIn time.Duration) (string, error) {
+func (s *storageAlibabaOSS) TemporaryURL(objectPath string, expireIn time.Duration, storageResize *StorageResize) (string, error) {
 	if expireIn < ossSignedURLExpire {
 		expireIn = ossSignedURLExpire
 	}
 
 	expireInSec := int64(expireIn / time.Second)
-	return s.bucket.SignURL(objectPath, oss.HTTPGet, expireInSec)
+	storageResizeQuery := storageResize.ConvertForOss()
+	return s.bucket.SignURL(objectPath, oss.HTTPGet, expireInSec, oss.Process(storageResizeQuery))
 }
 
 func (s *storageAlibabaOSS) Size(objectPath string) (int64, error) {

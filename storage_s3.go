@@ -230,7 +230,7 @@ func (s *storageS3) Copy(srcObjectPath string, dstObjectPath string) error {
 	return nil
 }
 
-func (s *storageS3) URL(objectPath string) (string, error) {
+func (s *storageS3) URL(objectPath string, storageResize *StorageResize) (string, error) {
 	if objectPath == "" {
 		return "", nil
 	}
@@ -238,7 +238,7 @@ func (s *storageS3) URL(objectPath string) (string, error) {
 	return fmt.Sprintf("https://%s.s3-%s.amazonaws.com/%s", s.bucketName, *s.awsSession.Config.Region, objectPath), nil
 }
 
-func (s *storageS3) TemporaryURL(objectPath string, expireIn time.Duration) (string, error) {
+func (s *storageS3) TemporaryURL(objectPath string, expireIn time.Duration, storageResize *StorageResize) (string, error) {
 	if expireIn < s3SignedURLExpire {
 		expireIn = s3SignedURLExpire
 	}
