@@ -11,7 +11,7 @@ Storage Implementation:
 
 Install (go 1.15+)
 ```sh
-go get -u github.com/abdularis/go-storage
+go get -u github.com/kevinangkajaya/go-storage
 ```
 
 ## Implementation
@@ -129,10 +129,10 @@ func main() {
 	_ = storage.Put("user-files/sample.txt", dataSource, gostorage.ObjectPublicRead)
 
 	// will generate: http://localhost:8000/files/user-files/sample.txt
-	publicURL, _ := storage.URL("user-files/sample.txt")
+	publicURL, _ := storage.URL("user-files/sample.txt", nil)
 	
 	// will generate: http://localhost:8000/private/files/user-files/sample.txt?expireAt=1619449697&signature=JB9d6dFOPhVLzp83EIkws2UGWMQqvnTnMGXDVY9HTZKb92TpI7K2UeocO4xgxQyhBtgeFfVMfz-NCjBB3Aeuxw
-	singedURL, _ = storage.TemporaryURL("user-files/sample.txt", time.Minute)
+	singedURL, _ = storage.TemporaryURL("user-files/sample.txt", time.Minute, nil)
 }
 ```
 

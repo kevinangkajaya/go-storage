@@ -6,7 +6,7 @@ import (
 	"strings"
 	"testing"
 
-	gostorage "github.com/abdularis/go-storage"
+	gostorage "github.com/kevinangkajaya/go-storage"
 	"github.com/stretchr/testify/require"
 )
 
